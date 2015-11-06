@@ -2,18 +2,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.naming.ContextNotEmptyException;
-import javax.security.sasl.AuthorizeCallback;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.EditorKit;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
-import org.omg.CORBA.portable.InputStream;
 
 /**
  * 
@@ -32,17 +27,34 @@ public class BingSearch {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws BadLocationException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, BadLocationException {
 		// TODO Auto-generated method stub
 		URL url = new URL(PROTOCOL + AUTHORITY +  PATH + formatQuery(getStringSearch()));
 		System.out.println("Pegando conteúdo de: " + url);
+		//System.out.println(getContent(url));
 		
-		System.out.println(getContent(url));
+		Document doc = Jsoup.parse(getContent(url).toString());
+		Elements links = doc.select("li.b_algo > h2 > a[href]");
 		
-		
-		
+		print("\nLinks: (%d)", links.size());
+        for (Element link : links) {
+            print(" * a: <%s>  (%s)", link.attr("abs:href"), trim(link.text(), 35));
+        }
+
 	}
+	
+	private static void print(String msg, Object... args) {
+        System.out.println(String.format(msg, args));
+    }
+
+    private static String trim(String s, int width) {
+        if (s.length() > width)
+            return s.substring(0, width-1) + ".";
+        else
+            return s;
+    }
 	
 	/**
 	 * @return the string to search
@@ -74,19 +86,13 @@ public class BingSearch {
 		connection.connect();
 		InputStreamReader reader = new InputStreamReader((java.io.InputStream) connection.getContent());
 
-//		BufferedReader buffReader = new BufferedReader(reader);
-//		StringBuffer content = new StringBuffer();
-//		String line;
-//		do {
-//			line = buffReader.readLine();
-//		    content.append(line + "\n");
-//		} while (line != null);
-//		return content;
-		
-		EditorKit editor = new HTMLEditorKit();
-		HTMLDocument document = (HTMLDocument) editor.createDefaultDocument();
-		editor.read(reader, document, 0);
-		
-		HTMLDocument.Iterator it = document.getIterator(HTML.Tag.A);
+		BufferedReader buffReader = new BufferedReader(reader);
+		StringBuffer content = new StringBuffer();
+		String line;
+		do {
+			line = buffReader.readLine();
+		    content.append(line + "\n");
+		} while (line != null);
+		return content;
 	}
 }
