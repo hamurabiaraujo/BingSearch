@@ -33,10 +33,10 @@ public class BingSearch {
 		// TODO Auto-generated method stub
 		URL url = new URL(PROTOCOL + AUTHORITY +  PATH + formatQuery(getStringSearch()));
 		System.out.println("Pegando conteúdo de: " + url);
-		//System.out.println(getContent(url));
+		System.out.println(getContent(url));
 		
 		Document doc = Jsoup.parse(getContent(url).toString());
-		Elements links = doc.select("li.b_algo > h2 > a[href]");
+		Elements links = doc.select("h2 > a[href]"); //li.b_algo > .b_title > 
 		
 		print("\nLinks: (%d)", links.size());
         for (Element link : links) {
@@ -71,7 +71,7 @@ public class BingSearch {
 	 * @return query formatted
 	 */
 	public static String formatQuery(String searchString) {
-		String query = "q=" + searchString.replaceAll(" ", "+") + "&count=100";
+		String query = "q=" + searchString.replaceAll(" ", "+") + "&count=50";
 		return query;
 	}
 	
